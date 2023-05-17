@@ -15,14 +15,4 @@ public class Collectable : MonoBehaviour
 
     public VegetableType typeOfVegetable;
 
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
