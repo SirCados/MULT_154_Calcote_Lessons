@@ -45,43 +45,43 @@ public class PlayerMovement : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        MovePlayer(); 
+        if (isLocalPlayer)
+        {
+            MovePlayer();
+        }         
     }
 
 
     void MovePlayer()
     {
-        if (isLocalPlayer)
+        float horizontalMovement = Input.GetAxis("Horizontal");
+        float forwardMovement = Input.GetAxis("Vertical");
+
+        Vector3 movementVector = new Vector3(horizontalMovement, 0, forwardMovement);
+
+        if(movementVector != Vector3.zero)
         {
-            float horizontalMovement = Input.GetAxis("Horizontal");
-            float forwardMovement = Input.GetAxis("Vertical");
+            print(movementVector); 
+            print("isLocal " + isLocalPlayer);
+        }            
 
-            Vector3 movementVector = new Vector3(horizontalMovement, 0, forwardMovement);
+        if (movementVector.magnitude > 0)
+        {
+            _playerRigidBody.AddForce(movementVector * Speed, ForceMode.Impulse);
+        }
+        else
+        {
+            _playerRigidBody.AddForce(Vector3.zero, ForceMode.Impulse);
+        }
 
-            if(movementVector != Vector3.zero)
-            {
-                print(movementVector); 
-                print("isLocal " + isLocalPlayer);
-            }            
-
-            if (movementVector.magnitude > 0)
-            {
-                _playerRigidBody.AddForce(movementVector * Speed, ForceMode.Impulse);
-            }
-            else
-            {
-                _playerRigidBody.AddForce(Vector3.zero, ForceMode.Impulse);
-            }
-
-            if (transform.position.z > 40)
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y, 40);
-            }
-            else if (transform.position.z < -40)
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y, -40);
-            }
-        }       
+        if (transform.position.z > 40)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, 40);
+        }
+        else if (transform.position.z < -40)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, -40);
+        }              
     }
 
     private void Respawn()
