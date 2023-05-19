@@ -34,14 +34,27 @@ public class InventoryScript : NetworkBehaviour
     public void AddToInventory(Collectable item)
     {
         _itemInventory[item.typeOfVegetable]++;
-        OnVegetablePickup?.Invoke(item.typeOfVegetable);
+        //Local player makes the call to the server
+        Cmd_TellServerItemCollected(item.typeOfVegetable);
+    }
+
+    [Command]
+    void Cmd_TellServerItemCollected(Collectable.VegetableType item)
+    {
+        //Server propagates info back to client
+        Rpc_TellPlayerItemCollected(item);
+    }
+
+    [ClientRpc]
+    void Rpc_TellPlayerItemCollected(Collectable.VegetableType item)
+    {
+        OnVegetablePickup?.Invoke(item);
     }
 
     void SetupInventory()
     {
         if (isLocalPlayer)
         {
-
             foreach (Collectable.VegetableType item in System.Enum.GetValues(typeof(Collectable.VegetableType)))
             {
                 _itemInventory.Add(item, 0);
