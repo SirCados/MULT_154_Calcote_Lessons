@@ -7,40 +7,20 @@ public class PlayerMovement : NetworkBehaviour
     private float Speed = 2f;
     public GameObject[] SpawnPoints;
     Rigidbody _playerRigidBody;
-    
-    Dictionary<Collectable.VegetableType, int> _itemInventory = new Dictionary<Collectable.VegetableType, int>();
+
+    GameObject _vegetableToPickup;
+
+    [SerializeField] InventoryScript _playerInventory;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (isLocalPlayer)
-        {
-            _playerRigidBody = GetComponent<Rigidbody>();
-
-            foreach (Collectable.VegetableType item in System.Enum.GetValues(typeof(Collectable.VegetableType)))
-            {
-                _itemInventory.Add(item, 0);
-            }
-
-            SpawnPoints = GameObject.FindGameObjectsWithTag("Respawn");
-        }       
-
+        SetupPlayer();
     }
 
-    void AddToInventory(Collectable item)
+    private void Update()
     {
-        _itemInventory[item.typeOfVegetable]++;
-    }
-
-    void PrintInventory()
-    {
-        string output = "";
-
-        foreach(KeyValuePair<Collectable.VegetableType, int> keyValue in _itemInventory)
-        {
-            output += string.Format("{0}: {1} ", keyValue.Key, keyValue.Value);
-        }
-        print(output);
+        PickVegetable();
     }
 
     private void FixedUpdate()
@@ -51,37 +31,42 @@ public class PlayerMovement : NetworkBehaviour
         }         
     }
 
-
     void MovePlayer()
     {
-        float horizontalMovement = Input.GetAxis("Horizontal");
-        float forwardMovement = Input.GetAxis("Vertical");
+        if (isLocalPlayer)
+        {
+            float horizontalMovement = Input.GetAxis("Horizontal");
+            float forwardMovement = Input.GetAxis("Vertical");
 
-        Vector3 movementVector = new Vector3(horizontalMovement, 0, forwardMovement);
+            Vector3 movementVector = new Vector3(horizontalMovement, 0, forwardMovement);
 
-        if(movementVector != Vector3.zero)
-        {
-            print(movementVector); 
-            print("isLocal " + isLocalPlayer);
-        }            
+            if (movementVector.magnitude > 0)
+            {
+                _playerRigidBody.AddForce(movementVector * Speed, ForceMode.Impulse);
+            }
+            else
+            {
+                _playerRigidBody.AddForce(Vector3.zero, ForceMode.Impulse);
+            }
 
-        if (movementVector.magnitude > 0)
-        {
-            _playerRigidBody.AddForce(movementVector * Speed, ForceMode.Impulse);
-        }
-        else
-        {
-            _playerRigidBody.AddForce(Vector3.zero, ForceMode.Impulse);
-        }
-
-        if (transform.position.z > 40)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, 40);
-        }
-        else if (transform.position.z < -40)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, -40);
+            if (transform.position.z > 40)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, 40);
+            }
+            else if (transform.position.z < -40)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, -40);
+            }
         }              
+    }
+
+    void PickVegetable()
+    {
+        if (isLocalPlayer && _vegetableToPickup != null && Input.GetKeyDown(KeyCode.Space))
+        {
+            Collectable item = _vegetableToPickup.GetComponent<Collectable>();            
+            _playerInventory.AddToInventory(item);
+        }        
     }
 
     private void Respawn()
@@ -96,21 +81,34 @@ public class PlayerMovement : NetworkBehaviour
         _playerRigidBody.MovePosition(SpawnPoints[index].transform.position);
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (isLocalPlayer && other.CompareTag("Hazard"))
-        {
-            Respawn();
-        }
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (isLocalPlayer && other.CompareTag("Collectable"))
         {
-            Collectable item = other.gameObject.GetComponent<Collectable>();
-            AddToInventory(item);
-            PrintInventory();
+            _vegetableToPickup = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (isLocalPlayer && other.CompareTag("Collectable"))
+        {
+            _vegetableToPickup = null;
+        }
+
+        if (isLocalPlayer && other.CompareTag("Hazard"))
+        {
+            Respawn();
+        }        
+    }
+
+    void SetupPlayer()
+    {
+        if (isLocalPlayer)
+        {
+            _playerRigidBody = GetComponent<Rigidbody>();
+            _playerInventory = GetComponent<InventoryScript>();
+            SpawnPoints = GameObject.FindGameObjectsWithTag("Respawn");
         }
     }
 }
