@@ -323,13 +323,8 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 30
-<<<<<<< Updated upstream
   offlineScene: 
   onlineScene: 
-=======
-  offlineScene: Assets/Scenes/LilypadLevel/LilypadLevel.unity
-  onlineScene: Assets/Scenes/LilypadLevel/LilypadLevel.unity
->>>>>>> Stashed changes
   transport: {fileID: 168728704}
   networkAddress: localhost
   maxConnections: 2
