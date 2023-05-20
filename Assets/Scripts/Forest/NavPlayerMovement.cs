@@ -1,8 +1,10 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NavPlayerMovement : MonoBehaviour
 {
+    public delegate void DropHive(Vector3 position);
+    public static event DropHive OnHiveDrop;
+
     public float Speed = 40.0f;
     public float RotationSpeed = 30.0f;
     Rigidbody _rigidBody = null;
@@ -16,6 +18,7 @@ public class NavPlayerMovement : MonoBehaviour
     void Update()
     {
         TranslateAndRotate();
+        PlayerAction();
     }
 
     void TranslateAndRotate()
@@ -40,5 +43,13 @@ public class NavPlayerMovement : MonoBehaviour
         Vector3 movementVector = transform.forward * _translation;
         _rigidBody.velocity = movementVector * Speed * Time.deltaTime;
         _translation = 0;
+    }
+
+    void PlayerAction()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            OnHiveDrop?.Invoke(transform.position + (transform.forward * -10));
+        }
     }
 }

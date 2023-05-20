@@ -12,7 +12,7 @@ public class UIUpdate : MonoBehaviour
     {
         textGUI = GetComponent<TextMeshProUGUI>();
         HivePickUp.HivePickedUp += HiveOnPlayer;
-        //NavPlayerMovement.DroppedHive += HiveOffPlayer;
+        NavPlayerMovement.OnHiveDrop += HiveOffPlayer;
     }
 
     void HiveOnPlayer()

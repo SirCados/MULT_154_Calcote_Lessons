@@ -20,6 +20,7 @@ public class Bot : MonoBehaviour
     public GameObject Target;
     public GameObject[] HidingSpots;
     public BehaviorMode CurrentBehavior;
+    public bool HasComplexBehavior = false;
 
     NavMeshAgent _agent;
     Rigidbody _targetRigidbody;
@@ -41,7 +42,10 @@ public class Bot : MonoBehaviour
     {
         //if(CanTargetSeeMe())
         //Flee(Target.transform.position);
-        DetermineBehavior();
+        if (HasComplexBehavior)
+        {
+            DetermineBehavior();
+        }        
     }
 
     void DetermineBehavior()
@@ -69,19 +73,19 @@ public class Bot : MonoBehaviour
         }
     }
 
-    void Seek(Vector3 location)
+    public void Seek(Vector3 location)
     {
         _agent.SetDestination(location);
         _targetRigidbody = Target.GetComponent<Rigidbody>();
     }
 
-    void Flee(Vector3 location)
+    public void Flee(Vector3 location)
     {
         Vector3 fleeVector = location - this.transform.position;
         _agent.SetDestination(this.transform.position - fleeVector);
     }
 
-    void Pursue()
+    public void Pursue()
     {
         Vector3 targetDir = Target.transform.position - this.transform.position;
 
@@ -99,7 +103,7 @@ public class Bot : MonoBehaviour
         Seek(Target.transform.position + Target.transform.forward * lookAhead);
     }
 
-    void Evade()
+    public void Evade()
     {
         Vector3 targetDir = Target.transform.position - this.transform.position;
         float lookAhead = targetDir.magnitude / (_agent.speed + _targetSpeed);
@@ -108,7 +112,7 @@ public class Bot : MonoBehaviour
 
 
     Vector3 wanderTarget = Vector3.zero;
-    void Wander()
+    public void Wander()
     {
         float wanderRadius = 10;
         float wanderDistance = 10;
@@ -124,7 +128,7 @@ public class Bot : MonoBehaviour
         Seek(targetLocal);
     }
 
-    void Hide()
+    public void Hide()
     {
         float dist = Mathf.Infinity;
         Vector3 chosenSpot = Vector3.zero;
@@ -145,7 +149,7 @@ public class Bot : MonoBehaviour
 
     }
 
-    void CleverHide()
+    public void CleverHide()
     {
         float dist = Mathf.Infinity;
         Vector3 chosenSpot = Vector3.zero;
@@ -177,11 +181,13 @@ public class Bot : MonoBehaviour
 
     }
 
-    bool CanSeeTarget()
+    public bool CanSeeTarget()
     {
         RaycastHit raycastInfo;
-        Vector3 rayToTarget = Target.transform.position - this.transform.position;
-        if (Physics.Raycast(this.transform.position, rayToTarget, out raycastInfo))
+        Vector3 targetPosition = new Vector3(Target.transform.position.x, 1.5f, Target.transform.position.z);
+        Vector3 position = new Vector3(transform.position.x, 1.5f, transform.position.z);
+        Vector3 rayToTarget = targetPosition - position;
+        if (Physics.Raycast(position, rayToTarget, out raycastInfo))
         {
             if (raycastInfo.transform.gameObject.tag == "Player")
                 return true;
@@ -189,12 +195,12 @@ public class Bot : MonoBehaviour
         return false;
     }
 
-    bool CanTargetSeeMe()
+    public bool CanTargetSeeMe()
     {
         RaycastHit raycastInfo;
         Vector3 targetFwdWS = Target.transform.TransformDirection(Target.transform.forward);
-        Debug.DrawRay(Target.transform.position, targetFwdWS * 10);
-        Debug.DrawRay(Target.transform.position, Target.transform.forward * 10, Color.green);
+        //Debug.DrawRay(Target.transform.position, targetFwdWS * 10);
+        //Debug.DrawRay(Target.transform.position, Target.transform.forward * 10, Color.green);
         if (Physics.Raycast(Target.transform.position, Target.transform.forward, out raycastInfo))
         {
             if (raycastInfo.transform.gameObject == gameObject)

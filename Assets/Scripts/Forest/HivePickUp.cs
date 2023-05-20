@@ -10,7 +10,7 @@ public class HivePickUp : MonoBehaviour
 
     private void Start()
     {
-        //NavPlayerMovement.DroppedHive += OnHiveDrop;
+        SubscribeToEvents();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -22,9 +22,14 @@ public class HivePickUp : MonoBehaviour
         }
     }
 
-    void OnHiveDrop(Vector3 postion)
+    void HandleHiveDrop(Vector3 postion)
     {
         transform.position = postion;
         gameObject.SetActive(true);
+    }
+
+    void SubscribeToEvents()
+    {
+        NavPlayerMovement.OnHiveDrop += HandleHiveDrop;
     }
 }

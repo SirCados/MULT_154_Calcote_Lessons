@@ -21,7 +21,7 @@ public class SwarmScript : MonoBehaviour
         MoveToWaypoint();
     }
 
-    void MoveToWaypoint()
+    public void MoveToWaypoint()
     {        
         if(Vector3.Distance(transform.position, _currentWaypoint.transform.position) < WAYPOINT_THRESHOLD)
         {
