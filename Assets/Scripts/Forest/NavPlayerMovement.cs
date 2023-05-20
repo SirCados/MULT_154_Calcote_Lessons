@@ -1,27 +1,55 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NavPlayerMovement : MonoBehaviour
 {
-    public float speed = 10.0f;
-    public float rotationSpeed = 100.0f;
+    public delegate void DropHive(Vector3 position);
+    public static event DropHive OnHiveDrop;
+
+    public float Speed = 40.0f;
+    public float RotationSpeed = 30.0f;
+    Rigidbody _rigidBody = null;
+    float _translation = 0;
+    float _rotation = 0;
+
+    private void Start()
+    {
+        _rigidBody = GetComponent<Rigidbody>();
+    }
     void Update()
+    {
+        TranslateAndRotate();
+        PlayerAction();
+    }
+
+    void TranslateAndRotate()
     {
         // Get the horizontal and vertical axis.
         // By default they are mapped to the arrow keys.
         // The value is in the range -1 to 1
-        float translation = Input.GetAxis("Vertical") * speed;
-        float rotation = Input.GetAxis("Horizontal") * rotationSpeed;
+        float translation = Input.GetAxis("Vertical");
+        float rotation = Input.GetAxis("Horizontal");
 
-        // Make it move 10 meters per second instead of 10 meters per frame...
-        translation *= Time.deltaTime;
-        rotation *= Time.deltaTime;
+        _translation += translation;
+        _rotation += rotation;
+    }
 
-        // Move translation along the object's z-axis
-        transform.Translate(0, 0, translation);
+    private void FixedUpdate()
+    {
+        Vector3 localRotation = transform.rotation.eulerAngles;
+        localRotation.y += _rotation * RotationSpeed * Time.deltaTime;
+        _rigidBody.MoveRotation(Quaternion.Euler(localRotation));
+        _rotation = 0;
 
-        // Rotate around our y-axis
-        transform.Rotate(0, rotation, 0);
+        Vector3 movementVector = transform.forward * _translation;
+        _rigidBody.velocity = movementVector * Speed * Time.deltaTime;
+        _translation = 0;
+    }
+
+    void PlayerAction()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            OnHiveDrop?.Invoke(transform.position + (transform.forward * -10));
+        }
     }
 }
