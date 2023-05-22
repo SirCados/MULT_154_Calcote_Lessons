@@ -18,6 +18,7 @@ public class NavPlayerMovement : MonoBehaviour
     {
         _rigidBody = GetComponent<Rigidbody>();
         _animator = GetComponentInChildren<Animator>();
+        InvokeRepeating("TwitchEar", 2.0f, 2.0f);
     }
     void Update()
     {
@@ -68,5 +69,10 @@ public class NavPlayerMovement : MonoBehaviour
         {
             _animator.SetBool("isDead", true);
         }
+    }
+
+    void TwitchEar()
+    {
+        _animator.SetTrigger("TwitchLeftEar");
     }
 }
