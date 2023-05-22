@@ -10,15 +10,22 @@ public class NavPlayerMovement : MonoBehaviour
     Rigidbody _rigidBody = null;
     float _translation = 0;
     float _rotation = 0;
+    bool _isDead = false;
+
+    Animator _animator;
 
     private void Start()
     {
         _rigidBody = GetComponent<Rigidbody>();
+        _animator = GetComponentInChildren<Animator>();
     }
     void Update()
     {
-        TranslateAndRotate();
-        PlayerAction();
+        if (!_isDead)
+        {
+            TranslateAndRotate();
+            PlayerAction();
+        }
     }
 
     void TranslateAndRotate()
@@ -31,6 +38,8 @@ public class NavPlayerMovement : MonoBehaviour
 
         _translation += translation;
         _rotation += rotation;
+
+        _animator.SetFloat("speed", translation);
     }
 
     private void FixedUpdate()
@@ -50,6 +59,14 @@ public class NavPlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             OnHiveDrop?.Invoke(transform.position + (transform.forward * -10));
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.CompareTag("Hazard"))
+        {
+            _animator.SetBool("isDead", true);
         }
     }
 }
