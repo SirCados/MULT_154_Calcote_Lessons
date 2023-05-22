@@ -65,10 +65,12 @@ public class NavPlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.CompareTag("Hazard"))
+        if (!_isDead && collision.collider.CompareTag("Hazard"))
         {
             _animator.SetBool("isDead", true);
+            _isDead = true;
         }
+        
     }
 
     void TwitchEar()
