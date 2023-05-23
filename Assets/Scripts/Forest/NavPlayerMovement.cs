@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
 
 public class NavPlayerMovement : MonoBehaviour
 {
@@ -10,15 +13,25 @@ public class NavPlayerMovement : MonoBehaviour
     Rigidbody _rigidBody = null;
     float _translation = 0;
     float _rotation = 0;
+    bool _isDead = false;
+    Transform _lookTarget;
+
+    Animator _animator;
 
     private void Start()
     {
         _rigidBody = GetComponent<Rigidbody>();
+        _animator = GetComponentInChildren<Animator>();
+        _lookTarget = GameObject.Find("HeadAimTarget").transform;
+        InvokeRepeating("TwitchEar", 2.0f, 2.0f);
     }
     void Update()
     {
-        TranslateAndRotate();
-        PlayerAction();
+        if (!_isDead)
+        {
+            TranslateAndRotate();
+            PlayerAction();
+        }
     }
 
     void TranslateAndRotate()
@@ -31,6 +44,8 @@ public class NavPlayerMovement : MonoBehaviour
 
         _translation += translation;
         _rotation += rotation;
+
+        _animator.SetFloat("speed", translation);
     }
 
     private void FixedUpdate()
@@ -50,6 +65,54 @@ public class NavPlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             OnHiveDrop?.Invoke(transform.position + (transform.forward * -10));
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!_isDead && collision.collider.CompareTag("Hazard"))
+        {
+            _animator.SetBool("isDead", true);
+            _isDead = true;
+        }
+        
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!_isDead && other.CompareTag("Hazard"))
+        {
+            StartCoroutine(LookAndLookAway(_lookTarget.position, other.transform.position));
+        }
+    }
+
+    void TwitchEar()
+    {
+        _animator.SetTrigger("TwitchLeftEar");
+    }
+
+    private IEnumerator LookAndLookAway(Vector3 targetPosition, Vector3 hazardPosition)
+    {
+        const int INTERVALS = 20;
+        const float INTERVAL_TIME = .5f / INTERVALS;
+
+        Vector3 targetVector = targetPosition - transform.position;
+        Vector3 hazardVector = hazardPosition - transform.position;
+
+        float angle = Vector2.SignedAngle(new Vector2(targetVector.x, targetVector.z), new Vector2(hazardVector.x, hazardVector.z));
+
+        float intervalAngle = angle / INTERVALS;
+
+        for(int counter = 0; counter < INTERVALS; counter++)
+        {
+            _lookTarget.RotateAround(transform.position, Vector3.up, -intervalAngle);
+            yield return new WaitForSeconds(INTERVAL_TIME);
+        }
+
+        for (int counter = 0; counter < INTERVALS; counter++)
+        {
+            _lookTarget.RotateAround(transform.position, Vector3.up, intervalAngle);
+            yield return new WaitForSeconds(INTERVAL_TIME);
         }
     }
 }
