@@ -342,9 +342,10 @@ GameObject:
   - component: {fileID: 160842463}
   - component: {fileID: 160842462}
   - component: {fileID: 160842464}
+  - component: {fileID: 160842465}
   m_Layer: 0
   m_Name: NavPlayer
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -396,6 +397,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!135 &160842465
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160842461}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 20
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &247736132
 GameObject:
   m_ObjectHideFlags: 0
